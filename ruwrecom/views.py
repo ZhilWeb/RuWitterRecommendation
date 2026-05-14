@@ -22,7 +22,7 @@ def postRecommendView(request):
     posts = get_posts("F:\\MyFiles\\lenta-ru-news-recommend-data1.csv")
 
 
-    liked_indices = 545
+    liked_indices = [78, 89, 95, 241, 268, 544, 567]
     # liked_posts = []
     # for index in liked_indices:
     #     liked_posts.append(posts[index])
@@ -38,7 +38,7 @@ def postRecommendView(request):
 
 
     # Усредняем векторы
-    user_profile = X[liked_indices]
+    user_profile = np.asarray(X[liked_indices].mean(axis=0))
 
     # Считаем похожесть со всеми постами
     similarities = cosine_similarity(user_profile, X).flatten()

@@ -7,7 +7,9 @@
 <body>
 <ul>
     {% for post in posts %}
+    {% if post not in liked_indices %}
         <li>{{ post }}</li>
+    {% endif %}
     {% endfor %}
 </ul>
 </body>
