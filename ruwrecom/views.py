@@ -6,6 +6,15 @@ import re
 import pandas
 from pandas import DataFrame
 import numpy as np
+import random
+import numpy as np
+
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+from ruwrecom.services.recommender import (
+    RecommenderService
+)
+
 
 
 # Create your views here.
@@ -15,40 +24,41 @@ def homePageView(request):
 
 
 def postRecommendView(request):
-    # if request.method != "POST":
-    #     return HttpResponse(f"{request.method} method not supported")
 
-    # liked_posts = []
     posts = get_posts("F:\\MyFiles\\lenta-ru-news-recommend-data1.csv")
-
-
     liked_indices = [78, 89, 95, 241, 268, 544, 567]
-    # liked_posts = []
-    # for index in liked_indices:
-    #     liked_posts.append(posts[index])
-    # data = {'posts': liked_posts}
-    # return render(request, "ruwrecom.html", context=data)
+    liked_posts = [posts[i] for i in liked_indices]
 
-    # for i in liked_posts:
-    #     posts.append(i)
-    #     liked_indices.append(len(posts) - 1)
+    recommender = RecommenderService()
 
-    vectorizer = TfidfVectorizer(tokenizer=tokenize_text_simple_regex, max_df=0.8, min_df=5)
-    X = vectorizer.fit_transform(posts)
+    recommended_post_ids = recommender.recommend(
+
+        liked_texts=liked_posts,
+
+        liked_post_ids=liked_indices,
+
+        top_k=100,
+
+        feed_size=20,
+
+        explore_probability=0.2
+    )
+
+    res_posts = []
+    for score in recommended_post_ids[:50]:
+        if score not in liked_indices:
+            res_posts.append(posts[score])
 
 
-    # Усредняем векторы
-    user_profile = np.asarray(X[liked_indices].mean(axis=0))
-
-    # Считаем похожесть со всеми постами
-    similarities = cosine_similarity(user_profile, X).flatten()
-
-    # Рекомендации
-    recommended = similarities.argsort()[::-1]
-
-    data = {'posts': recommended[:50], 'liked_indices': liked_indices}
+    data = {'scores': recommended_post_ids[:50], 'liked_indices': liked_indices, 'posts': res_posts}
     return render(request, "ruwrecom.html", context=data)
 
+
+def setPostRecommendView(request):
+    posts = get_posts("F:\\MyFiles\\lenta-ru-news-recommend-data1.csv")
+    posts_with_ids = [{'id': k, 'text': v} for k, v in enumerate(posts)]
+    recommender = RecommenderService()
+    recommender.rebuild(posts_with_ids)
 
 
 
@@ -66,3 +76,5 @@ def tokenize_text_simple_regex(txt, min_token_size=4):
 
 def get_posts(path: str):
     return ((pandas.read_csv(path))['text']).tolist()
+
+

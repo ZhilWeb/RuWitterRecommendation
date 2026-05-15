@@ -7,8 +7,13 @@
 <body>
 <ul>
     {% for post in posts %}
-    {% if post not in liked_indices %}
         <li>{{ post }}</li>
+    {% endfor %}
+</ul>
+<ul>
+    {% for score in scores %}
+    {% if score not in liked_indices %}
+        <li>{{ score }}</li>
     {% endif %}
     {% endfor %}
 </ul>
