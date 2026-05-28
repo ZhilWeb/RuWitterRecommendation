@@ -157,18 +157,22 @@ class RecommenderService:
 
     # Periodic rebuild
     def rebuild(self, posts):
+        try:
+            print("Rebuilding recommendation index...")
 
-        print("Rebuilding recommendation index...")
+            # Build NEW snapshot in background
+            new_state = self._build_state(posts)
 
-        # Build NEW snapshot in background
-        new_state = self._build_state(posts)
+            # Atomic swap
+            with self.swap_lock:
 
-        # Atomic swap
-        with self.swap_lock:
+                self.state = new_state
 
-            self.state = new_state
+            print("Recommendation index swapped")
+            return {'status': True, 'message': 'Recommendation index swapped'}
+        except Exception as e:
+            return {'status': False, 'message': str(e)}
 
-        print("Recommendation index swapped")
 
 
     # User embedding
@@ -196,7 +200,7 @@ class RecommenderService:
         # Immutable snapshot
         state = self.state
 
-        if state is None:
+        if state is None or state.index is None:
 
             return []
 

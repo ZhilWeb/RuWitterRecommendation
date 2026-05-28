@@ -5,17 +5,17 @@
     <title>Title</title>
 </head>
 <body>
-<ul>
+<ol>
     {% for post in posts %}
         <li>{{ post }}</li>
     {% endfor %}
-</ul>
-<ul>
+</ol>
+<ol>
     {% for score in scores %}
     {% if score not in liked_indices %}
         <li>{{ score }}</li>
     {% endif %}
     {% endfor %}
-</ul>
+</ol>
 </body>
 </html>
