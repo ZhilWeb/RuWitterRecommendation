@@ -195,7 +195,7 @@ class RecommenderService:
 
 
     # Recommendation API
-    def recommend(self, liked_texts, liked_post_ids, top_k=50, feed_size=20, explore_probability=0.2):
+    def recommend(self, liked_texts, liked_post_ids, watched_posts_indices, top_k=50, feed_size=20, explore_probability=0.2):
 
         # Immutable snapshot
         state = self.state
@@ -224,7 +224,7 @@ class RecommenderService:
 
             post_id = state.post_ids[idx]
 
-            if post_id in liked_post_ids:
+            if post_id in liked_post_ids or post_id in watched_posts_indices:
                 continue
 
             similarity = 1 - distance

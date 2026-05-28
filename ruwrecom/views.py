@@ -10,6 +10,8 @@ import numpy as np
 import random
 import numpy as np
 import json
+import threading
+
 
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -38,6 +40,10 @@ def postRecommendView(request):
     # return JsonResponse({'status': True, 'message': 'Recommendation index bla'})
     liked_indices = data["likedIndices"]
     liked_posts = data["likedTexts"]
+    watched_indices = data["watchedIndices"]
+    feed_size = data["feedSize"]
+    if feed_size is None:
+        feed_size = 50
 
     recommender = RecommenderService()
 
@@ -47,9 +53,11 @@ def postRecommendView(request):
 
         liked_post_ids=liked_indices,
 
+        watched_posts_indices=watched_indices,
+
         top_k=100,
 
-        feed_size=50,
+        feed_size=feed_size,
 
         explore_probability=0.2
     )
@@ -78,8 +86,11 @@ def setPostRecommendView(request):
     )
     posts = data["posts"]
     recommender = RecommenderService()
-    rebuild_result = recommender.rebuild(posts)
-    return JsonResponse({'status': True, 'message': 'scheduled'})
+    threading.Thread(
+        target=recommender.rebuild,
+        args=(posts,),
+    ).start()
+    return JsonResponse({'status': 'success', 'message': 'scheduled'})
 
 
 
