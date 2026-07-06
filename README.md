@@ -3,5 +3,4 @@
 
 Backend-разработчик - Жилин Павел.
 
-
 Исходный код социальной сети "RuWitter": https://github.com/ZhilWeb/RuWitter1
